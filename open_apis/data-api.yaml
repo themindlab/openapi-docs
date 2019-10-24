@@ -1,0 +1,612 @@
+swagger: "2.0"
+
+info:
+  version: 0.0.1
+  title: Manatee Current Data-API
+  description: OpenAPI specs for Mindlab's manatee V3 data-api - Legecy version. Exact ins and outs may have changed
+
+schemes:
+  - http
+host: "localhost:8080"
+
+
+paths:
+
+  #find experiments
+  /experiments:
+    get:
+      summary: "[user] request list of all experiments"
+      tags: 
+        - Experiment
+      parameters:
+        - in: body
+          name: query
+          description: Query to be match the experiments too
+          schema:
+            type: object
+      responses:
+        200:
+          description: "Experiment successfully got"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Experiment"
+        400:
+          $ref: "#/responses/bad_request_response"
+  /experiment:
+    post:
+      summary: "[user]  create an experiment"
+      tags:
+        - Experiment
+      parameters:
+        - name: Experiment Details
+          in: body
+          description: Experiment name
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+      responses:
+        200:
+           $ref: "#/responses/message_and_experiment"
+        400:
+          $ref: "#/responses/bad_request_response"
+  /experiment/{experiment_id}:
+    parameters:
+      - in: path
+        name: experiment_id
+        type: string
+        required: true
+        description: "The experiment ID"
+    get:
+      summary: "[user] get the specified experiment"
+      description: "Allows for grabbing experiments via path parameter"
+      tags:
+        - Experiment
+      responses:
+        200:
+          description: "Succefully got full experiment"
+          schema:
+            $ref: "#/definitions/Experiment"
+        400:
+           $ref: "#/responses/json_error"
+    delete:
+      summary: "[user] delete the specified experiment"
+      tags:
+        - Experiment
+      responses:
+        200:
+          description: "Succefully got deleted experiment"
+          schema:
+            $ref: "#/responses/ok_message_response"
+        400:
+           $ref: "#/responses/json_error"
+    put:
+      summary: "[user] update the specified experiment"
+      tags:
+        - Experiment
+      parameters:
+        - in: body
+          name: "update information"
+          schema:
+           type: object
+          required: true
+          description: The information you wish to update this experiment with
+      responses:
+        200:
+           $ref: "#/responses/message_and_experiment"
+        400:
+           $ref: "#/responses/json_error"
+ 
+  #configure experiments
+  /experiment/{experiment_id}/create_add_element:
+    parameters:
+      - in: path
+        name: experiment_id
+        type: string
+        required: true
+        description: "The experiment ID"
+    put:
+      summary: "[user] Create then add a element to experiment"
+      description: First create an element, then add that element automatically to this experiment
+      tags:
+        - Experiment
+        - Convenience
+      responses:
+          200:
+            description: "Successfully created and added element"
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                experiment:
+                  $ref: "#/definitions/Experiment"
+                element:
+                  $ref: "#/definitions/Element"
+          400:
+            $ref: "#/responses/json_error"
+  /experiment/{experiment_id}/remove_delete_element/{element_id}:
+      parameters:
+        - in: path
+          name: experiment_id
+          type: string
+          required: true
+          description: "The experiment ID"
+        - in: path
+          name: element_id
+          type: string
+          required: true
+          description: "The element ID"
+      put:
+        summary: "[user] remove an elememnt from an experiment and delete it"
+        tags:
+          - Experiment
+          - Convenience
+        responses:
+            200:
+              $ref: "#/responses/message_and_experiment"
+            400:
+              $ref: "#/responses/bad_request_response"
+  /experiment/{experiment_id}/create_add_resource:
+    parameters:
+      - in: path
+        name: experiment_id
+        type: string
+        required: true
+        description: "The experiment ID"
+    put:
+      summary: "[user] Create then add a resource to experiment"
+      description: First create an resource, then add that resource automatically to this experiment
+      tags:
+        - Experiment
+        - Convenience
+      responses:
+          200:
+            description: "Successfully created and added resource"
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                experiment:
+                  $ref: "#/definitions/Experiment"
+                resource:
+                  $ref: "#/definitions/Resource"
+          400:
+            $ref: "#/responses/json_error"
+  /experiment/{experiment_id}/remove_delete_resource/{resource_id}:
+    parameters:
+      - in: path
+        name: experiment_id
+        type: string
+        required: true
+        description: "The experiment ID"
+      - in: path
+        name: resource_id
+        type: string
+        required: true
+        description: "The resource ID"
+    put:
+      summary: "[user] remove a resource from an experiment and delete it"
+      tags:
+        - Experiment
+        - Convenience
+      responses:
+          200:
+            $ref: "#/responses/message_and_experiment"
+          400:
+            $ref: "#/responses/json_error"
+
+  #configure element
+  /element/{element_id}:
+    parameters:
+      - in: path
+        name: element_id
+        type: string
+        required: true
+        description: "Element ID"  
+    get:
+      summary: "[user] get a specific element"
+      tags:
+        - Element
+      responses:
+        200:
+          $ref: "#/responses/authoring_response_handler_200"
+        500:
+          $ref: "#/responses/authoring_response_handler_500"
+    delete:
+      summary: "[user] delete a specific element"
+      tags:
+        - Element
+      responses:
+        200:
+          $ref: "#/responses/ok_message_response"
+        400:
+          $ref: "#/responses/bad_request_response"
+    put: 
+      summary: "[user] update an element"
+      tags: 
+        - Element
+        - Convenience
+      parameters:
+        - in: body
+          name: Element data
+          schema:
+            type: object
+          required: true
+          description: "Data for updateing the element with"
+      responses:
+        200:
+          $ref: "#/responses/message_and_element"
+        400:
+          $ref: "#/responses/bad_request_response"
+ 
+  #configure resources
+  /resource:
+    get:
+      summary: "[user] lists all resources matching a query"
+      tags:
+        - Resource
+      parameters:
+        - in: body
+          name: query
+          schema:
+            type:
+              object
+          required: false
+          description: "Query to match the resources against, leave blank to match all"
+      responses:
+        200:
+          description:
+            "lists all resources matching query"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Resource"
+        400:
+          $ref: "#/responses/bad_request_response"
+    post:
+      summary: "[user] create a resource"
+      tags:
+        - Resource
+      parameters:
+        - in: body
+          name: resource details
+          schema:
+            type:
+              object
+            properties:
+              name: 
+                type: string
+          required: true
+          description: "Details for making the object"
+      responses:
+        200:
+          $ref: "#/responses/message_and_resource"
+        400:
+          $ref: "#/responses/bad_request_response"
+  /resource/{resource_id}:
+    parameters:
+      - in: path
+        name: resource_id
+        type: string
+        required: true
+        description: "resource ID" 
+    get:
+      summary: "[user] get the specified resource"
+      tags:
+        - Resource
+      responses:
+        200:
+          $ref: "#/responses/authoring_response_handler_200"
+        500:
+          $ref: "#/responses/authoring_response_handler_500"
+    delete:
+      summary: "[user] delete a specific resource"
+      tags:
+        - Resource
+      responses:
+        200:
+          $ref: "#/responses/ok_message_response"
+        400:
+          $ref: "#/responses/bad_request_response"
+    put:
+      summary: "[user] Update a resource"
+      tags: 
+        - Resource
+      parameters:
+        - in: body
+          name: update details
+          schema:
+            type: object
+          required: true
+          description:  "The information for updating the resource"
+      responses:
+        200:
+          $ref: "#/responses/ok_message_response"
+        400:
+          $ref: "#/responses/bad_request_response"
+    
+  #find sessions
+  /session:
+    get:
+      summary: "[user] list sessions matching a query"
+      parameters:
+        - in: query
+          name: session_info
+          type: string
+          required: true
+          description: "The experiment ID"
+      tags:
+        - Session
+      responses:
+        200:
+          $ref: "#/responses/authoring_response_handler_200"
+        500:
+          $ref: "#/responses/authoring_response_handler_500"
+    put:
+      summary: "[user] update multiple sessions"
+      parameters:
+        - in: body
+          name: payload
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                _id:
+                  type: string
+          required: true
+          description:  "The information for updating the resource"
+      tags:
+        - Session
+      responses:
+        200:
+          $ref: "#/responses/authoring_response_handler_200"
+        500:
+          $ref: "#/responses/authoring_response_handler_500"
+  /session/{session_id}:
+    parameters:
+      - in: path
+        name: session_id
+        type: string
+        required: true
+        description: "Session ID" 
+    put:
+      summary: "[user] Update a session"
+      parameters:
+        - in: body
+          name: update details
+          schema:
+            type: object
+          required: true
+          description:  "The information for updating the resource"
+      tags:
+        - Session
+      responses:
+        200:
+          $ref: "#/responses/ok_message_response"
+        500:
+          $ref: "#/responses/json_error"
+
+
+
+tags: 
+  - name: Authentication
+    description: Authentication of users
+  - name : User
+    description: CRUD routes on user accounts
+  - name: Experiment
+    description:  Experiments routes
+  - name: Element
+    description:  Elements routes
+  - name: Resource
+    description:  Resources routes
+  - name: Session
+    description: Session routes
+  - name: Player
+    description: Player routes inside manatee
+  - name: Participant
+    description: Routes for participants
+  - name: Test
+    description: routes that test experiments
+  - name: Panel
+    description: Routes that are used to inform panel providers
+  - name: Convenience
+    description: (duplicated from above) Convenience routes that can be called by multiple other routes.
+  - name: Simulator
+    description: Routes required for the simulator to operate.
+
+  
+
+ 
+              
+
+        
+responses:
+  ok_message_response:
+    description: everything went ok
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+  bad_request_response:
+    description: unable to process the request
+    schema:
+      properties:
+        message:
+          type: string
+        error:
+          type: object
+  json_error:
+    description: error stack in JSON
+    schema:
+      type: object
+  unauthorised_response:
+    description: not authorised
+  server_errer_handler:
+    description: application error
+    schema:
+      properties:
+        message:
+          type: string
+          enum: 
+            - "application error"
+        error:
+          type: object
+  message_and_experiment:
+    description: "Succefully updated experiment"
+    schema:
+      type: object
+      properties:
+        message: 
+          type: string
+        experiment:
+          $ref: "#/definitions/Experiment"
+  authoring_response_handler_200:
+    description: "no errors returned"   
+    schema: 
+      type: object
+  authoring_response_handler_500:
+    description: "errors have been returned"
+    schema:
+      type: object
+  message_and_element:
+    description: "Succefully updated element"
+    schema:
+      type: object
+      properties:
+        message: 
+          type: string
+        element:
+          $ref: "#/definitions/Element"
+  message_and_resource:
+    description: "Succefully updated resource"
+    schema:
+      type: object
+      properties:
+        message: 
+          type: string
+        resource:
+          $ref: "#/definitions/Resource"
+  message_and_session:
+    description: "Succefully updated session"
+    schema:
+      type: object
+      properties:
+        message: 
+          type: string
+        session:
+          $ref: "#/definitions/Session"
+
+definitions:
+
+  Experiment_unpopulated:
+    type: 
+      object
+    required:
+      - _id
+      - name
+    properties:
+      _id:
+        type: string
+      name:
+        type: string
+  Experiment:
+    type: 
+      object
+    required:
+      - _id
+      - name
+    properties:
+      _id:
+        type: string
+      name:
+        type: string
+      elements:
+        type: array
+        items:
+          $ref: "#/definitions/Element"
+      resources:
+        type: array
+        items:
+          $ref: "#/definitions/Resource"
+      listening:
+        type: array
+        items:
+          $ref: "#/definitions/Listener"
+      created:
+        type: string
+      __v:
+        type: integer
+  Element:
+    type: object
+    required:
+    - _id
+    - name
+    properties:
+      _id:
+        type: string
+      name:
+        type: string
+      resources:
+        type: array
+        items:
+          $ref: "#/definitions/Resource"
+      component:
+        type: string
+      configuration:
+        type: object
+      created:
+        type: string
+      __v:
+        type: integer
+  Resource:
+    type: object
+    required:
+    - _id
+    - name
+    properties:
+      _id:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+      content:
+        type: object
+      __v: 
+        type: integer
+  Session:
+    type: object
+  Component:
+    type: object
+    required:
+      - model
+    properties:
+      model: 
+        type: object
+        required:
+          - name
+        properties:
+          name: 
+            type: string
+          description:
+            type: string
+          version:
+            type: string
+          start:
+            type: string
+          data:
+            type: object
+          configuration:
+            type: object
+          button_style:
+            type: object
+          default_configuration:
+            type: object
+          examples:
+            type: object
